@@ -86,16 +86,19 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createCollectibles() {
+    const height = this.cameras.main.height;
+
+    // Posições relativas à altura da tela (igual às plataformas)
     const positions = [
-      { x: 200, y: 300 },
-      { x: 300, y: 350 },
-      { x: 450, y: 250 },
-      { x: 600, y: 280 },
-      { x: 750, y: 350 },
-      { x: 900, y: 220 },
-      { x: 1050, y: 300 },
-      { x: 1200, y: 260 },
-      { x: 1400, y: 200 }
+      { x: 200, y: height - 140 },   // Acima da plataforma em x:200 (height-100)
+      { x: 300, y: height - 60 },    // No chão
+      { x: 450, y: height - 220 },   // Acima da plataforma em x:400 (height-180)
+      { x: 600, y: height - 180 },   // Acima da plataforma em x:600 (height-140)
+      { x: 750, y: height - 60 },    // No chão
+      { x: 900, y: height - 240 },   // Acima da plataforma em x:850 (height-200)
+      { x: 1050, y: height - 60 },   // No chão
+      { x: 1200, y: height - 200 },  // Acima da plataforma em x:1100 (height-160)
+      { x: 1400, y: height - 260 }   // Acima da plataforma em x:1350 (height-220)
     ];
 
     positions.forEach(pos => {
@@ -174,14 +177,14 @@ export default class GameScene extends Phaser.Scene {
     this.hudContainer.setScrollFactor(0);
     this.hudContainer.setDepth(100);
 
-    // Vidas (corações)
+    // Vidas (corações) - mais para a direita por causa da borda arredondada
     this.heartsDisplay = [];
     for (let i = 0; i < PLAYER.MAX_LIVES; i++) {
-      const heartFull = this.add.image(25 + (i * 35), 25, 'heart');
+      const heartFull = this.add.image(45 + (i * 35), 25, 'heart');
       heartFull.setScale(1.5);
       heartFull.setVisible(i < this.lives);
 
-      const heartEmpty = this.add.image(25 + (i * 35), 25, 'heart_empty');
+      const heartEmpty = this.add.image(45 + (i * 35), 25, 'heart_empty');
       heartEmpty.setScale(1.5);
       heartEmpty.setVisible(i >= this.lives);
 
@@ -190,8 +193,8 @@ export default class GameScene extends Phaser.Scene {
       this.hudContainer.add(heartEmpty);
     }
 
-    // Pontuação
-    this.scoreText = this.add.text(width - 20, 20, `⭐ ${this.score}`, {
+    // Pontuação - mais para a esquerda por causa da borda arredondada
+    this.scoreText = this.add.text(width - 45, 20, `⭐ ${this.score}`, {
       fontFamily: 'Arial',
       fontSize: '20px',
       color: '#ffffff'
@@ -222,112 +225,108 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createTouchControls(width, height) {
-    // Container para controles touch
-    this.touchControls = this.add.container(0, 0);
-    this.touchControls.setScrollFactor(0);
-    this.touchControls.setDepth(100);
-    this.touchControls.setAlpha(0.7);
+    // Estado dos botões direcionais
+    this.touchState = { left: false, right: false };
 
-    // Joystick virtual (esquerda)
-    const joystickBase = this.add.circle(100, height - 80, 50, 0x000000, 0.3);
-    const joystickThumb = this.add.circle(100, height - 80, 25, 0xffffff, 0.5);
+    // Armazena referências aos botões para reposicionamento
+    this.touchButtons = {};
 
-    this.touchControls.add([joystickBase, joystickThumb]);
+    const btnY = height - 55;
+    const leftBtnX = 55;
+    const rightBtnX = 150;
 
-    // Estado do joystick
-    this.joystickState = { x: 0, y: 0 };
-    this.joystickBase = joystickBase;
-    this.joystickThumb = joystickThumb;
+    // ====== BOTÃO ESQUERDA (usando sprite) ======
+    const leftBtn = this.add.image(leftBtnX, btnY, 'arrow_left');
+    this.touchButtons.left = leftBtn;
+    leftBtn.setScale(1.2);
+    leftBtn.setAlpha(0.8);
+    leftBtn.setScrollFactor(0);
+    leftBtn.setDepth(100);
+    leftBtn.setInteractive({ useHandCursor: false });
 
-    // Zona de toque do joystick
-    const joystickZone = this.add.rectangle(100, height - 80, 150, 150, 0x000000, 0);
-    joystickZone.setInteractive();
-    this.touchControls.add(joystickZone);
-
-    joystickZone.on('pointerdown', (pointer) => {
-      this.updateJoystick(pointer);
+    leftBtn.on('pointerdown', () => {
+      this.touchState.left = true;
+      leftBtn.setAlpha(1);
+      leftBtn.setTint(0xcccccc);
+    });
+    leftBtn.on('pointerup', () => {
+      this.touchState.left = false;
+      leftBtn.setAlpha(0.8);
+      leftBtn.clearTint();
+    });
+    leftBtn.on('pointerout', () => {
+      this.touchState.left = false;
+      leftBtn.setAlpha(0.8);
+      leftBtn.clearTint();
     });
 
-    joystickZone.on('pointermove', (pointer) => {
-      if (pointer.isDown) {
-        this.updateJoystick(pointer);
-      }
+    // ====== BOTÃO DIREITA (usando sprite) ======
+    const rightBtn = this.add.image(rightBtnX, btnY, 'arrow_right');
+    rightBtn.setScale(1.2);
+    rightBtn.setAlpha(0.8);
+    rightBtn.setScrollFactor(0);
+    rightBtn.setDepth(100);
+    rightBtn.setInteractive({ useHandCursor: false });
+
+    rightBtn.on('pointerdown', () => {
+      this.touchState.right = true;
+      rightBtn.setAlpha(1);
+      rightBtn.setTint(0xcccccc);
+    });
+    rightBtn.on('pointerup', () => {
+      this.touchState.right = false;
+      rightBtn.setAlpha(0.8);
+      rightBtn.clearTint();
+    });
+    rightBtn.on('pointerout', () => {
+      this.touchState.right = false;
+      rightBtn.setAlpha(0.8);
+      rightBtn.clearTint();
     });
 
-    joystickZone.on('pointerup', () => {
-      this.resetJoystick();
-    });
+    // ====== BOTÃO A (PULO - usando sprite) ======
+    const jumpBtn = this.add.image(width - 55, btnY, 'btn_a');
+    jumpBtn.setScale(1.3);
+    jumpBtn.setAlpha(0.8);
+    jumpBtn.setScrollFactor(0);
+    jumpBtn.setDepth(100);
+    jumpBtn.setInteractive({ useHandCursor: false });
 
-    joystickZone.on('pointerout', () => {
-      this.resetJoystick();
-    });
-
-    // Botão de pulo (A) - direita
-    const jumpBtn = this.add.circle(width - 80, height - 80, 35, COLORS.PRIMARY, 0.8);
-    const jumpText = this.add.text(width - 80, height - 80, 'A', {
-      fontFamily: 'Arial',
-      fontSize: '24px',
-      color: '#ffffff',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-
-    this.touchControls.add([jumpBtn, jumpText]);
-
-    jumpBtn.setInteractive();
     jumpBtn.on('pointerdown', () => {
       this.jump();
-      jumpBtn.setScale(0.9);
+      jumpBtn.setAlpha(1);
+      jumpBtn.setTint(0xcccccc);
     });
     jumpBtn.on('pointerup', () => {
-      jumpBtn.setScale(1);
+      jumpBtn.setAlpha(0.8);
+      jumpBtn.clearTint();
+    });
+    jumpBtn.on('pointerout', () => {
+      jumpBtn.setAlpha(0.8);
+      jumpBtn.clearTint();
     });
 
-    // Botão de interação (B) - direita superior
-    const interactBtn = this.add.circle(width - 150, height - 100, 30, COLORS.SECONDARY, 0.8);
-    const interactText = this.add.text(width - 150, height - 100, 'B', {
-      fontFamily: 'Arial',
-      fontSize: '20px',
-      color: '#ffffff',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
+    // ====== BOTÃO B (INTERAGIR - usando sprite) ======
+    const interactBtn = this.add.image(width - 140, btnY - 30, 'btn_b');
+    interactBtn.setScale(1.1);
+    interactBtn.setAlpha(0.8);
+    interactBtn.setScrollFactor(0);
+    interactBtn.setDepth(100);
+    interactBtn.setInteractive({ useHandCursor: false });
 
-    this.touchControls.add([interactBtn, interactText]);
-
-    interactBtn.setInteractive();
     interactBtn.on('pointerdown', () => {
       this.interact();
-      interactBtn.setScale(0.9);
+      interactBtn.setAlpha(1);
+      interactBtn.setTint(0xcccccc);
     });
     interactBtn.on('pointerup', () => {
-      interactBtn.setScale(1);
+      interactBtn.setAlpha(0.8);
+      interactBtn.clearTint();
     });
-  }
-
-  updateJoystick(pointer) {
-    const baseX = 100;
-    const baseY = this.cameras.main.height - 80;
-    const maxDistance = 40;
-
-    let dx = pointer.x - baseX;
-    let dy = pointer.y - baseY;
-    let distance = Math.sqrt(dx * dx + dy * dy);
-
-    if (distance > maxDistance) {
-      dx = (dx / distance) * maxDistance;
-      dy = (dy / distance) * maxDistance;
-    }
-
-    this.joystickThumb.setPosition(baseX + dx, baseY + dy);
-    this.joystickState.x = dx / maxDistance;
-    this.joystickState.y = dy / maxDistance;
-  }
-
-  resetJoystick() {
-    const baseX = 100;
-    const baseY = this.cameras.main.height - 80;
-    this.joystickThumb.setPosition(baseX, baseY);
-    this.joystickState.x = 0;
-    this.joystickState.y = 0;
+    interactBtn.on('pointerout', () => {
+      interactBtn.setAlpha(0.8);
+      interactBtn.clearTint();
+    });
   }
 
   setupCollisions() {
@@ -370,11 +369,16 @@ export default class GameScene extends Phaser.Scene {
 
   handleEnemyCollision(player, enemy) {
     // Verifica se o player está caindo em cima do inimigo
-    if (player.body.velocity.y > 0 && player.y < enemy.y - 10) {
+    // Condições: player descendo (velocity.y > 0) E parte de baixo do player acima do centro do inimigo
+    const playerBottom = player.body.y + player.body.height;
+    const enemyTop = enemy.body.y;
+    const isFallingOnEnemy = player.body.velocity.y > 0 && playerBottom < enemyTop + 20;
+
+    if (isFallingOnEnemy) {
       // Derrota o inimigo
       this.defeatEnemy(enemy);
       // Pequeno pulo após derrotar
-      player.body.setVelocityY(-200);
+      player.body.setVelocityY(-250);
     } else {
       // Player toma dano
       this.takeDamage();
@@ -499,9 +503,11 @@ export default class GameScene extends Phaser.Scene {
       velocityX = PLAYER.SPEED;
     }
 
-    // Joystick touch
-    if (Math.abs(this.joystickState.x) > 0.2) {
-      velocityX = this.joystickState.x * PLAYER.SPEED;
+    // Botões touch direcionais
+    if (this.touchState.left) {
+      velocityX = -PLAYER.SPEED;
+    } else if (this.touchState.right) {
+      velocityX = PLAYER.SPEED;
     }
 
     this.player.body.setVelocityX(velocityX);

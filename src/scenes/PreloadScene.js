@@ -77,6 +77,8 @@ export default class PreloadScene extends Phaser.Scene {
     this.load.image('joystick_thumb', 'ui/hud/joystick_thumb.png');
     this.load.image('btn_a', 'ui/hud/btn_a.png');
     this.load.image('btn_b', 'ui/hud/btn_b.png');
+    this.load.image('arrow_left', 'ui/hud/arrow_left.png');
+    this.load.image('arrow_right', 'ui/hud/arrow_right.png');
     this.load.image('heart', 'ui/hud/heart.png');
     this.load.image('heart_empty', 'ui/hud/heart_empty.png');
 

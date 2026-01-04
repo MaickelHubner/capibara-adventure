@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerador de Ícones PWA - Capibara Adventure</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    canvas {
+      border: 2px solid #444;
+      margin: 10px;
+      image-rendering: pixelated;
+    }
+    .preview {
+      display: inline-block;
+      margin: 20px;
+      text-align: center;
+    }
+    button {
+      background: #4a9;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 10px;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #5ba;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gerador de Ícones PWA</h1>
+  <p>Clique nos botões para baixar os ícones e coloque-os na raiz do projeto</p>
+
+  <div class="preview">
+    <h3>192x192</h3>
+    <canvas id="icon192" width="192" height="192"></canvas>
+    <br>
+    <button onclick="download('icon192', 'icon-192.png')">Baixar 192x192</button>
+  </div>
+
+  <div class="preview">
+    <h3>512x512</h3>
+    <canvas id="icon512" width="512" height="512"></canvas>
+    <br>
+    <button onclick="download('icon512', 'icon-512.png')">Baixar 512x512</button>
+  </div>
+
+  <script>
+    const COLORS = {
+      CAPIBARA_BODY: '#8B6914',
+      CAPIBARA_DARK: '#5C4A0F',
+      CAPIBARA_LIGHT: '#A67C00',
+      CAPIBARA_NOSE: '#2D2D2D',
+      CAPIBARA_EYE: '#000000',
+      CAPIBARA_EYE_SHINE: '#FFFFFF',
+    };
+
+    function drawCapibaraIcon(ctx, size) {
+      // Clear canvas
+      ctx.clearRect(0, 0, size, size);
+
+      // Background - gradient circle
+      const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+      gradient.addColorStop(0, '#2d5a3d');
+      gradient.addColorStop(1, '#1a3d2a');
+
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(size/2, size/2, size/2 - 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Border
+      ctx.strokeStyle = '#4CAF50';
+      ctx.lineWidth = size * 0.03;
+      ctx.stroke();
+
+      // Draw capybara using the same style as sprite generator
+      const scale = size / 64;
+      const offsetX = size/2 - 16 * scale;
+      const offsetY = size/2 - 16 * scale;
+
+      function drawPixel(x, y, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(offsetX + x * scale, offsetY + y * scale, scale, scale);
+      }
+
+      function drawRect(x, y, w, h, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(offsetX + x * scale, offsetY + y * scale, w * scale, h * scale);
+      }
+
+      // Corpo principal (oval)
+      for (let x = 8; x < 26; x++) {
+        for (let y = 12; y < 26; y++) {
+          const cx = 17, cy = 19;
+          const rx = 9, ry = 7;
+          if (Math.pow(x - cx, 2) / (rx * rx) + Math.pow(y - cy, 2) / (ry * ry) < 1) {
+            const isBottom = y > 22;
+            drawPixel(x, y, isBottom ? COLORS.CAPIBARA_DARK : COLORS.CAPIBARA_BODY);
+          }
+        }
+      }
+
+      // Cabeça
+      for (let x = 2; x < 16; x++) {
+        for (let y = 6; y < 20; y++) {
+          const cx = 9, cy = 13;
+          const rx = 7, ry = 7;
+          if (Math.pow(x - cx, 2) / (rx * rx) + Math.pow(y - cy, 2) / (ry * ry) < 1) {
+            drawPixel(x, y, COLORS.CAPIBARA_BODY);
+          }
+        }
+      }
+
+      // Focinho (mais claro)
+      for (let x = 2; x < 7; x++) {
+        for (let y = 12; y < 17; y++) {
+          const cx = 4, cy = 14;
+          if (Math.pow(x - cx, 2) + Math.pow(y - cy, 2) < 9) {
+            drawPixel(x, y, COLORS.CAPIBARA_LIGHT);
+          }
+        }
+      }
+
+      // Nariz
+      drawPixel(2, 13, COLORS.CAPIBARA_NOSE);
+      drawPixel(3, 13, COLORS.CAPIBARA_NOSE);
+      drawPixel(2, 14, COLORS.CAPIBARA_NOSE);
+      drawPixel(3, 14, COLORS.CAPIBARA_NOSE);
+
+      // Olho
+      drawPixel(6, 10, COLORS.CAPIBARA_EYE);
+      drawPixel(7, 10, COLORS.CAPIBARA_EYE);
+      drawPixel(6, 11, COLORS.CAPIBARA_EYE);
+      drawPixel(7, 11, COLORS.CAPIBARA_EYE);
+      drawPixel(6, 10, COLORS.CAPIBARA_EYE_SHINE);
+
+      // Orelhas
+      drawPixel(5, 5, COLORS.CAPIBARA_BODY);
+      drawPixel(6, 4, COLORS.CAPIBARA_BODY);
+      drawPixel(6, 5, COLORS.CAPIBARA_BODY);
+      drawPixel(12, 5, COLORS.CAPIBARA_BODY);
+      drawPixel(13, 4, COLORS.CAPIBARA_BODY);
+      drawPixel(13, 5, COLORS.CAPIBARA_BODY);
+
+      // Pernas
+      const legY = 25;
+      drawRect(10, legY, 3, 4, COLORS.CAPIBARA_DARK);
+      drawRect(9, legY + 3, 4, 2, COLORS.CAPIBARA_DARK);
+      drawRect(19, legY, 3, 4, COLORS.CAPIBARA_DARK);
+      drawRect(18, legY + 3, 4, 2, COLORS.CAPIBARA_DARK);
+    }
+
+    function download(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Generate icons on load
+    window.onload = function() {
+      const ctx192 = document.getElementById('icon192').getContext('2d');
+      const ctx512 = document.getElementById('icon512').getContext('2d');
+
+      drawCapibaraIcon(ctx192, 192);
+      drawCapibaraIcon(ctx512, 512);
+    };
+  </script>
+</body>
+</html>

@@ -12,8 +12,13 @@ export const gameConfig = {
   pixelArt: true,
   roundPixels: true,
   scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    mode: Phaser.Scale.RESIZE,
+    autoCenter: Phaser.Scale.NO_CENTER,
+    width: '100%',
+    height: '100%'
+  },
+  dom: {
+    createContainer: true
   },
   physics: {
     default: 'arcade',
@@ -23,7 +28,10 @@ export const gameConfig = {
     }
   },
   input: {
-    activePointers: 3
+    activePointers: 4,
+    touch: {
+      capture: true
+    }
   },
   scene: [BootScene, PreloadScene, MenuScene, GameScene]
 };

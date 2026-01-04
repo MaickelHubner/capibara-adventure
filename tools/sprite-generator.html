@@ -644,6 +644,122 @@
     }
 
     // ===============================
+    // BOTÕES DIRECIONAIS (SETAS)
+    // ===============================
+    function generateArrowLeft() {
+      const canvas = createCanvas(70, 70);
+      const ctx = canvas.getContext('2d');
+
+      // Sombra externa
+      ctx.fillStyle = '#1a1a1a';
+      ctx.beginPath();
+      ctx.arc(35, 38, 32, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Botão principal (cinza escuro)
+      ctx.fillStyle = '#444444';
+      ctx.beginPath();
+      ctx.arc(35, 35, 30, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Borda interna mais clara
+      ctx.fillStyle = '#555555';
+      ctx.beginPath();
+      ctx.arc(35, 34, 26, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Centro do botão
+      ctx.fillStyle = '#3a3a3a';
+      ctx.beginPath();
+      ctx.arc(35, 36, 24, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Brilho superior
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.beginPath();
+      ctx.arc(30, 28, 12, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Seta para esquerda - triângulo sólido estilo clean
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.moveTo(22, 35);  // Ponta da seta (esquerda)
+      ctx.lineTo(45, 20);  // Canto superior direito
+      ctx.lineTo(45, 50);  // Canto inferior direito
+      ctx.closePath();
+      ctx.fill();
+
+      // Sombra da seta para dar profundidade
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.beginPath();
+      ctx.moveTo(24, 37);
+      ctx.lineTo(45, 22);
+      ctx.lineTo(45, 50);
+      ctx.lineTo(45, 52);
+      ctx.lineTo(22, 37);
+      ctx.closePath();
+      ctx.fill();
+
+      return { canvas, path: 'ui/hud/arrow_left.png', name: 'Seta Esquerda' };
+    }
+
+    function generateArrowRight() {
+      const canvas = createCanvas(70, 70);
+      const ctx = canvas.getContext('2d');
+
+      // Sombra externa
+      ctx.fillStyle = '#1a1a1a';
+      ctx.beginPath();
+      ctx.arc(35, 38, 32, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Botão principal (cinza escuro)
+      ctx.fillStyle = '#444444';
+      ctx.beginPath();
+      ctx.arc(35, 35, 30, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Borda interna mais clara
+      ctx.fillStyle = '#555555';
+      ctx.beginPath();
+      ctx.arc(35, 34, 26, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Centro do botão
+      ctx.fillStyle = '#3a3a3a';
+      ctx.beginPath();
+      ctx.arc(35, 36, 24, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Brilho superior
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.beginPath();
+      ctx.arc(30, 28, 12, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Seta para direita - triângulo sólido estilo clean
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.moveTo(48, 35);  // Ponta da seta (direita)
+      ctx.lineTo(25, 20);  // Canto superior esquerdo
+      ctx.lineTo(25, 50);  // Canto inferior esquerdo
+      ctx.closePath();
+      ctx.fill();
+
+      // Sombra da seta para dar profundidade
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.beginPath();
+      ctx.moveTo(48, 37);
+      ctx.lineTo(25, 52);
+      ctx.lineTo(25, 50);
+      ctx.lineTo(46, 37);
+      ctx.closePath();
+      ctx.fill();
+
+      return { canvas, path: 'ui/hud/arrow_right.png', name: 'Seta Direita' };
+    }
+
+    // ===============================
     // GERAR TODOS E EXIBIR
     // ===============================
     function generateAll() {
@@ -658,6 +774,8 @@
         generateJoystickThumb,
         generateButtonA,
         generateButtonB,
+        generateArrowLeft,
+        generateArrowRight,
         generatePlayButton,
         generateCustomizeButton,
       ];
