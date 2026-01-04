@@ -86,19 +86,17 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createCollectibles() {
-    const height = this.cameras.main.height;
-
-    // Posições relativas à altura da tela (igual às plataformas)
+    // Posições baseadas na altura fixa de 480px
     const positions = [
-      { x: 200, y: height - 140 },   // Acima da plataforma em x:200 (height-100)
-      { x: 300, y: height - 60 },    // No chão
-      { x: 450, y: height - 220 },   // Acima da plataforma em x:400 (height-180)
-      { x: 600, y: height - 180 },   // Acima da plataforma em x:600 (height-140)
-      { x: 750, y: height - 60 },    // No chão
-      { x: 900, y: height - 240 },   // Acima da plataforma em x:850 (height-200)
-      { x: 1050, y: height - 60 },   // No chão
-      { x: 1200, y: height - 200 },  // Acima da plataforma em x:1100 (height-160)
-      { x: 1400, y: height - 260 }   // Acima da plataforma em x:1350 (height-220)
+      { x: 200, y: 340 },   // Acima da plataforma em x:200 (480-100=380)
+      { x: 300, y: 420 },   // No chão
+      { x: 450, y: 260 },   // Acima da plataforma em x:400 (480-180=300)
+      { x: 600, y: 300 },   // Acima da plataforma em x:600 (480-140=340)
+      { x: 750, y: 420 },   // No chão
+      { x: 900, y: 240 },   // Acima da plataforma em x:850 (480-200=280)
+      { x: 1050, y: 420 },  // No chão
+      { x: 1200, y: 280 },  // Acima da plataforma em x:1100 (480-160=320)
+      { x: 1400, y: 220 }   // Acima da plataforma em x:1350 (480-220=260)
     ];
 
     positions.forEach(pos => {

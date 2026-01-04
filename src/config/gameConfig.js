@@ -12,10 +12,12 @@ export const gameConfig = {
   pixelArt: true,
   roundPixels: true,
   scale: {
-    mode: Phaser.Scale.RESIZE,
-    autoCenter: Phaser.Scale.NO_CENTER,
-    width: '100%',
-    height: '100%'
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    max: {
+      width: 1200,
+      height: 720
+    }
   },
   dom: {
     createContainer: true
