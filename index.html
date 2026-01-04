@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="screen-orientation" content="landscape">
+  <title>Capibara Adventure</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #1a1a2e;
+      touch-action: none;
+    }
+
+    #game-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    /* Força orientação landscape em dispositivos móveis */
+    @media screen and (orientation: portrait) {
+      #rotate-message {
+        display: flex !important;
+      }
+      #game-container {
+        display: none;
+      }
+    }
+
+    #rotate-message {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #1a1a2e;
+      color: #fff;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #rotate-message .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    #rotate-message p {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="rotate-message">
+    <div class="icon">📱🔄</div>
+    <p>Por favor, gire seu dispositivo para o modo paisagem</p>
+  </div>
+  <div id="game-container"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

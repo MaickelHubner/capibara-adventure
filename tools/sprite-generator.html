@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Capibara Adventure - Gerador de Sprites</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 20px;
+    }
+    h1 { margin-bottom: 20px; color: #4CAF50; }
+    h2 { margin: 20px 0 10px; color: #8BC34A; font-size: 18px; }
+    .sprite-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .sprite-item {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .sprite-item canvas {
+      image-rendering: pixelated;
+      border: 1px solid #444;
+      background: #333;
+    }
+    .sprite-item p {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #aaa;
+    }
+    .sprite-item a {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 5px 10px;
+      background: #4CAF50;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .sprite-item a:hover { background: #45a049; }
+    #download-all {
+      padding: 15px 30px;
+      background: #2196F3;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 30px;
+    }
+    #download-all:hover { background: #1976D2; }
+    .preview {
+      margin-top: 10px;
+    }
+    .preview canvas {
+      transform: scale(4);
+      transform-origin: top left;
+      margin-bottom: 60px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 Capibara Adventure - Gerador de Sprites</h1>
+  <button id="download-all">📦 Baixar Todos os Sprites (ZIP)</button>
+
+  <div id="sprites"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script>
+    // Paleta de cores
+    const COLORS = {
+      CAPIBARA_BODY: '#8B6914',
+      CAPIBARA_DARK: '#5C4A0F',
+      CAPIBARA_LIGHT: '#A67C00',
+      CAPIBARA_NOSE: '#2D2D2D',
+      CAPIBARA_EYE: '#000000',
+      CAPIBARA_EYE_SHINE: '#FFFFFF',
+
+      SNAKE_BODY: '#2E7D32',
+      SNAKE_DARK: '#1B5E20',
+      SNAKE_BELLY: '#81C784',
+      SNAKE_EYE: '#FFD600',
+      SNAKE_TONGUE: '#E53935',
+
+      FRUIT_ORANGE: '#FF9800',
+      FRUIT_ORANGE_LIGHT: '#FFB74D',
+      FRUIT_ORANGE_DARK: '#E65100',
+      FRUIT_LEAF: '#4CAF50',
+      FRUIT_STEM: '#5D4037',
+
+      GRASS_TOP: '#4CAF50',
+      GRASS_DARK: '#388E3C',
+      DIRT: '#795548',
+      DIRT_DARK: '#5D4037',
+      DIRT_DARKER: '#3E2723',
+      WOOD: '#8D6E63',
+      WOOD_DARK: '#6D4C41',
+      WOOD_DARKER: '#5D4037',
+      WOOD_LINE: '#4E342E',
+
+      HEART_RED: '#E53935',
+      HEART_LIGHT: '#EF5350',
+      HEART_OUTLINE: '#666666',
+
+      BUTTON_GREEN: '#4CAF50',
+      BUTTON_GREEN_DARK: '#388E3C',
+      BUTTON_GREEN_BORDER: '#2E7D32',
+      BUTTON_BROWN: '#8D6E63',
+      BUTTON_BROWN_DARK: '#5D4037',
+      BUTTON_BROWN_BORDER: '#4E342E',
+    };
+
+    const sprites = {};
+
+    function createCanvas(width, height) {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      return canvas;
+    }
+
+    function drawPixel(ctx, x, y, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
+    }
+
+    function drawRect(ctx, x, y, w, h, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, w, h);
+    }
+
+    // ===============================
+    // CAPIVARA SPRITESHEET
+    // ===============================
+    function generateCapibara() {
+      const canvas = createCanvas(32 * 12, 32);
+      const ctx = canvas.getContext('2d');
+
+      function drawCapibaraFrame(offsetX, legOffset = 0, bodyOffset = 0) {
+        const o = offsetX;
+        const bo = bodyOffset;
+
+        // Corpo principal (oval)
+        for (let x = 8; x < 26; x++) {
+          for (let y = 12; y < 26; y++) {
+            const cx = 17, cy = 19 + bo;
+            const rx = 9, ry = 7;
+            if (Math.pow(x - cx, 2) / (rx * rx) + Math.pow(y - cy, 2) / (ry * ry) < 1) {
+              const isBottom = y > 22 + bo;
+              drawPixel(ctx, o + x, y, isBottom ? COLORS.CAPIBARA_DARK : COLORS.CAPIBARA_BODY);
+            }
+          }
+        }
+
+        // Cabeça
+        for (let x = 2; x < 16; x++) {
+          for (let y = 6; y < 20; y++) {
+            const cx = 9, cy = 13 + bo;
+            const rx = 7, ry = 7;
+            if (Math.pow(x - cx, 2) / (rx * rx) + Math.pow(y - cy, 2) / (ry * ry) < 1) {
+              drawPixel(ctx, o + x, y, COLORS.CAPIBARA_BODY);
+            }
+          }
+        }
+
+        // Focinho (mais claro)
+        for (let x = 2; x < 7; x++) {
+          for (let y = 12; y < 17; y++) {
+            const cx = 4, cy = 14 + bo;
+            if (Math.pow(x - cx, 2) + Math.pow(y - cy, 2) < 9) {
+              drawPixel(ctx, o + x, y, COLORS.CAPIBARA_LIGHT);
+            }
+          }
+        }
+
+        // Nariz
+        drawPixel(ctx, o + 2, 13 + bo, COLORS.CAPIBARA_NOSE);
+        drawPixel(ctx, o + 3, 13 + bo, COLORS.CAPIBARA_NOSE);
+        drawPixel(ctx, o + 2, 14 + bo, COLORS.CAPIBARA_NOSE);
+        drawPixel(ctx, o + 3, 14 + bo, COLORS.CAPIBARA_NOSE);
+
+        // Olho
+        drawPixel(ctx, o + 6, 10 + bo, COLORS.CAPIBARA_EYE);
+        drawPixel(ctx, o + 7, 10 + bo, COLORS.CAPIBARA_EYE);
+        drawPixel(ctx, o + 6, 11 + bo, COLORS.CAPIBARA_EYE);
+        drawPixel(ctx, o + 7, 11 + bo, COLORS.CAPIBARA_EYE);
+        drawPixel(ctx, o + 6, 10 + bo, COLORS.CAPIBARA_EYE_SHINE);
+
+        // Orelhas
+        drawPixel(ctx, o + 5, 5 + bo, COLORS.CAPIBARA_BODY);
+        drawPixel(ctx, o + 6, 4 + bo, COLORS.CAPIBARA_BODY);
+        drawPixel(ctx, o + 6, 5 + bo, COLORS.CAPIBARA_BODY);
+        drawPixel(ctx, o + 12, 5 + bo, COLORS.CAPIBARA_BODY);
+        drawPixel(ctx, o + 13, 4 + bo, COLORS.CAPIBARA_BODY);
+        drawPixel(ctx, o + 13, 5 + bo, COLORS.CAPIBARA_BODY);
+
+        // Pernas traseiras
+        const legY = 25 + bo;
+        // Perna esquerda
+        drawRect(ctx, o + 10 + legOffset, legY, 3, 4, COLORS.CAPIBARA_DARK);
+        drawRect(ctx, o + 9 + legOffset, legY + 3, 4, 2, COLORS.CAPIBARA_DARK);
+        // Perna direita
+        drawRect(ctx, o + 19 - legOffset, legY, 3, 4, COLORS.CAPIBARA_DARK);
+        drawRect(ctx, o + 18 - legOffset, legY + 3, 4, 2, COLORS.CAPIBARA_DARK);
+      }
+
+      // Idle (frames 0-1)
+      drawCapibaraFrame(0, 0, 0);
+      drawCapibaraFrame(32, 0, 1);
+
+      // Walk (frames 2-5)
+      drawCapibaraFrame(64, -2, 0);
+      drawCapibaraFrame(96, 0, -1);
+      drawCapibaraFrame(128, 2, 0);
+      drawCapibaraFrame(160, 0, -1);
+
+      // Jump (frames 6-7)
+      drawCapibaraFrame(192, 1, -3);
+      drawCapibaraFrame(224, -1, -2);
+
+      // Swim (frames 8-11)
+      drawCapibaraFrame(256, 0, 2);
+      drawCapibaraFrame(288, 1, 3);
+      drawCapibaraFrame(320, 0, 2);
+      drawCapibaraFrame(352, -1, 3);
+
+      return { canvas, path: 'sprites/capibara/capibara.png', name: 'Capivara Spritesheet (32x32, 12 frames)' };
+    }
+
+    // ===============================
+    // COBRA SPRITESHEET
+    // ===============================
+    function generateSnake() {
+      const canvas = createCanvas(32 * 4, 32);
+      const ctx = canvas.getContext('2d');
+
+      function drawSnakeFrame(offsetX, phase) {
+        const o = offsetX;
+
+        // Corpo ondulado
+        for (let i = 0; i < 22; i++) {
+          const x = o + 6 + i;
+          const waveOffset = Math.sin((i + phase * 3) * 0.4) * 2;
+          const y = 18 + waveOffset;
+
+          // Corpo
+          drawPixel(ctx, x, y, COLORS.SNAKE_BODY);
+          drawPixel(ctx, x, y + 1, COLORS.SNAKE_BODY);
+          drawPixel(ctx, x, y + 2, COLORS.SNAKE_BODY);
+          // Barriga
+          drawPixel(ctx, x, y + 3, COLORS.SNAKE_BELLY);
+          drawPixel(ctx, x, y + 4, COLORS.SNAKE_BELLY);
+        }
+
+        // Cabeça
+        const headWave = Math.sin(phase * 0.8) * 1;
+        for (let x = 0; x < 10; x++) {
+          for (let y = 14; y < 26; y++) {
+            const cx = 5, cy = 20 + headWave;
+            if (Math.pow(x - cx, 2) / 25 + Math.pow(y - cy, 2) / 36 < 1) {
+              drawPixel(ctx, o + x, y, COLORS.SNAKE_BODY);
+            }
+          }
+        }
+        // Barriga da cabeça
+        for (let x = 2; x < 8; x++) {
+          drawPixel(ctx, o + x, 23 + headWave, COLORS.SNAKE_BELLY);
+          drawPixel(ctx, o + x, 24 + headWave, COLORS.SNAKE_BELLY);
+        }
+
+        // Olho
+        drawPixel(ctx, o + 3, 17 + headWave, COLORS.SNAKE_EYE);
+        drawPixel(ctx, o + 4, 17 + headWave, COLORS.SNAKE_EYE);
+        drawPixel(ctx, o + 3, 16 + headWave, COLORS.CAPIBARA_EYE);
+
+        // Língua (alternada)
+        if (phase % 2 === 0) {
+          drawPixel(ctx, o + 1, 20 + headWave, COLORS.SNAKE_TONGUE);
+          drawPixel(ctx, o + 0, 19 + headWave, COLORS.SNAKE_TONGUE);
+          drawPixel(ctx, o + 0, 21 + headWave, COLORS.SNAKE_TONGUE);
+        }
+
+        // Cauda afinando
+        const tailWave = Math.sin((22 + phase * 3) * 0.4) * 2;
+        drawPixel(ctx, o + 28, 19 + tailWave, COLORS.SNAKE_DARK);
+        drawPixel(ctx, o + 29, 19 + tailWave, COLORS.SNAKE_DARK);
+        drawPixel(ctx, o + 30, 20 + tailWave, COLORS.SNAKE_DARK);
+      }
+
+      for (let i = 0; i < 4; i++) {
+        drawSnakeFrame(32 * i, i);
+      }
+
+      return { canvas, path: 'sprites/enemies/snake.png', name: 'Cobra Spritesheet (32x32, 4 frames)' };
+    }
+
+    // ===============================
+    // FRUTAS SPRITESHEET
+    // ===============================
+    function generateFruit() {
+      const canvas = createCanvas(16 * 4, 16);
+      const ctx = canvas.getContext('2d');
+
+      function drawFruitFrame(offsetX, rotation) {
+        const o = offsetX;
+
+        // Fruta (laranja/manga)
+        for (let x = 3; x < 13; x++) {
+          for (let y = 5; y < 14; y++) {
+            const cx = 8, cy = 9;
+            if (Math.pow(x - cx, 2) / 20 + Math.pow(y - cy, 2) / 16 < 1) {
+              const isHighlight = x < 7 && y < 8;
+              const isDark = x > 9 || y > 10;
+              const color = isHighlight ? COLORS.FRUIT_ORANGE_LIGHT :
+                           isDark ? COLORS.FRUIT_ORANGE_DARK : COLORS.FRUIT_ORANGE;
+              drawPixel(ctx, o + x, y, color);
+            }
+          }
+        }
+
+        // Brilho
+        drawPixel(ctx, o + 5, 6, '#FFCC80');
+        drawPixel(ctx, o + 6, 7, '#FFE0B2');
+
+        // Talo
+        drawPixel(ctx, o + 8, 4, COLORS.FRUIT_STEM);
+        drawPixel(ctx, o + 8, 3, COLORS.FRUIT_STEM);
+
+        // Folha (rotaciona levemente)
+        const leafOffset = Math.sin(rotation * Math.PI / 2);
+        drawPixel(ctx, o + 9 + leafOffset, 3, COLORS.FRUIT_LEAF);
+        drawPixel(ctx, o + 10 + leafOffset, 2, COLORS.FRUIT_LEAF);
+        drawPixel(ctx, o + 11 + leafOffset, 2, COLORS.FRUIT_LEAF);
+        drawPixel(ctx, o + 10 + leafOffset, 3, COLORS.FRUIT_LEAF);
+      }
+
+      for (let i = 0; i < 4; i++) {
+        drawFruitFrame(16 * i, i);
+      }
+
+      return { canvas, path: 'sprites/items/fruit.png', name: 'Fruta Spritesheet (16x16, 4 frames)' };
+    }
+
+    // ===============================
+    // CORAÇÃO
+    // ===============================
+    function generateHeart() {
+      const canvas = createCanvas(16, 16);
+      const ctx = canvas.getContext('2d');
+
+      const heartPattern = [
+        '  **  **  ',
+        ' ******** ',
+        '**********',
+        '**********',
+        '**********',
+        ' ******** ',
+        '  ******  ',
+        '   ****   ',
+        '    **    ',
+      ];
+
+      heartPattern.forEach((row, y) => {
+        for (let x = 0; x < row.length; x++) {
+          if (row[x] === '*') {
+            const isHighlight = x < 4 && y < 3;
+            drawPixel(ctx, x + 3, y + 3, isHighlight ? COLORS.HEART_LIGHT : COLORS.HEART_RED);
+          }
+        }
+      });
+
+      return { canvas, path: 'ui/hud/heart.png', name: 'Coração Cheio' };
+    }
+
+    function generateHeartEmpty() {
+      const canvas = createCanvas(16, 16);
+      const ctx = canvas.getContext('2d');
+
+      const heartPattern = [
+        '  **  **  ',
+        ' *    * * ',
+        '*        *',
+        '*        *',
+        '*        *',
+        ' *      * ',
+        '  *    *  ',
+        '   *  *   ',
+        '    **    ',
+      ];
+
+      heartPattern.forEach((row, y) => {
+        for (let x = 0; x < row.length; x++) {
+          if (row[x] === '*') {
+            drawPixel(ctx, x + 3, y + 3, COLORS.HEART_OUTLINE);
+          }
+        }
+      });
+
+      return { canvas, path: 'ui/hud/heart_empty.png', name: 'Coração Vazio' };
+    }
+
+    // ===============================
+    // TILES FLORESTA
+    // ===============================
+    function generateForestTiles() {
+      const canvas = createCanvas(16 * 4, 16);
+      const ctx = canvas.getContext('2d');
+
+      // Tile 1: Grama topo
+      for (let x = 0; x < 16; x++) {
+        for (let y = 0; y < 16; y++) {
+          if (y < 5) {
+            const isLight = (x + y) % 3 === 0;
+            drawPixel(ctx, x, y, isLight ? COLORS.GRASS_TOP : COLORS.GRASS_DARK);
+          } else {
+            const isLight = (x * y) % 5 !== 0;
+            drawPixel(ctx, x, y, isLight ? COLORS.DIRT : COLORS.DIRT_DARK);
+          }
+        }
+      }
+      // Detalhes de grama
+      [2, 5, 9, 13].forEach(gx => {
+        drawPixel(ctx, gx, 0, COLORS.GRASS_TOP);
+        drawPixel(ctx, gx + 1, 1, COLORS.GRASS_DARK);
+      });
+
+      // Tile 2: Terra
+      for (let x = 16; x < 32; x++) {
+        for (let y = 0; y < 16; y++) {
+          const isLight = ((x - 16) * y) % 5 !== 0;
+          drawPixel(ctx, x, y, isLight ? COLORS.DIRT : COLORS.DIRT_DARK);
+        }
+      }
+      // Pedrinhas
+      drawPixel(ctx, 20, 8, '#9E9E9E');
+      drawPixel(ctx, 21, 8, '#757575');
+      drawPixel(ctx, 27, 12, '#BDBDBD');
+
+      // Tile 3: Terra fundo
+      for (let x = 32; x < 48; x++) {
+        for (let y = 0; y < 16; y++) {
+          const isDark = ((x - 32) + y) % 4 === 0;
+          drawPixel(ctx, x, y, isDark ? COLORS.DIRT_DARKER : COLORS.DIRT_DARK);
+        }
+      }
+
+      // Tile 4: Plataforma madeira
+      for (let x = 48; x < 64; x++) {
+        for (let y = 0; y < 16; y++) {
+          if (y < 4) {
+            drawPixel(ctx, x, y, COLORS.WOOD);
+          } else if (y < 6) {
+            drawPixel(ctx, x, y, COLORS.WOOD_DARK);
+          } else {
+            const hasLine = (x - 48) % 5 === 0;
+            drawPixel(ctx, x, y, hasLine ? COLORS.WOOD_LINE : COLORS.WOOD_DARKER);
+          }
+        }
+      }
+
+      return { canvas, path: 'sprites/tiles/floresta.png', name: 'Tileset Floresta (16x16, 4 tiles)' };
+    }
+
+    // ===============================
+    // JOYSTICK BASE
+    // ===============================
+    function generateJoystickBase() {
+      const canvas = createCanvas(100, 100);
+      const ctx = canvas.getContext('2d');
+
+      // Círculo externo
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.beginPath();
+      ctx.arc(50, 50, 48, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Borda
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(50, 50, 46, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Cruz direcional (indicativa)
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.fillRect(45, 20, 10, 60);
+      ctx.fillRect(20, 45, 60, 10);
+
+      return { canvas, path: 'ui/hud/joystick_base.png', name: 'Joystick Base' };
+    }
+
+    function generateJoystickThumb() {
+      const canvas = createCanvas(50, 50);
+      const ctx = canvas.getContext('2d');
+
+      // Sombra
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.beginPath();
+      ctx.arc(26, 26, 22, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Círculo principal
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.beginPath();
+      ctx.arc(25, 25, 22, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Círculo interno
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.beginPath();
+      ctx.arc(25, 25, 14, 0, Math.PI * 2);
+      ctx.fill();
+
+      return { canvas, path: 'ui/hud/joystick_thumb.png', name: 'Joystick Thumb' };
+    }
+
+    // ===============================
+    // BOTÕES A e B
+    // ===============================
+    function generateButtonA() {
+      const canvas = createCanvas(70, 70);
+      const ctx = canvas.getContext('2d');
+
+      // Sombra
+      ctx.fillStyle = COLORS.BUTTON_GREEN_DARK;
+      ctx.beginPath();
+      ctx.arc(35, 38, 32, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Botão principal
+      ctx.fillStyle = COLORS.BUTTON_GREEN;
+      ctx.beginPath();
+      ctx.arc(35, 35, 30, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Brilho
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.beginPath();
+      ctx.arc(28, 28, 15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Letra
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 28px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('A', 35, 36);
+
+      return { canvas, path: 'ui/hud/btn_a.png', name: 'Botão A (Pulo)' };
+    }
+
+    function generateButtonB() {
+      const canvas = createCanvas(60, 60);
+      const ctx = canvas.getContext('2d');
+
+      // Sombra
+      ctx.fillStyle = COLORS.BUTTON_BROWN_DARK;
+      ctx.beginPath();
+      ctx.arc(30, 33, 27, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Botão principal
+      ctx.fillStyle = COLORS.BUTTON_BROWN;
+      ctx.beginPath();
+      ctx.arc(30, 30, 25, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Brilho
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.beginPath();
+      ctx.arc(24, 24, 12, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Letra
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 22px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('B', 30, 31);
+
+      return { canvas, path: 'ui/hud/btn_b.png', name: 'Botão B (Interagir)' };
+    }
+
+    // ===============================
+    // BOTÕES DO MENU
+    // ===============================
+    function generatePlayButton() {
+      const canvas = createCanvas(120, 50);
+      const ctx = canvas.getContext('2d');
+
+      // Sombra
+      ctx.fillStyle = COLORS.BUTTON_GREEN_DARK;
+      ctx.fillRect(4, 8, 112, 42);
+
+      // Fundo
+      ctx.fillStyle = COLORS.BUTTON_GREEN;
+      ctx.fillRect(0, 4, 120, 42);
+
+      // Borda superior
+      ctx.fillStyle = COLORS.BUTTON_GREEN_BORDER;
+      ctx.fillRect(0, 0, 120, 4);
+
+      // Texto
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 22px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('JOGAR', 60, 26);
+
+      return { canvas, path: 'ui/buttons/play.png', name: 'Botão Jogar' };
+    }
+
+    function generateCustomizeButton() {
+      const canvas = createCanvas(160, 50);
+      const ctx = canvas.getContext('2d');
+
+      // Sombra
+      ctx.fillStyle = COLORS.BUTTON_BROWN_DARK;
+      ctx.fillRect(4, 8, 152, 42);
+
+      // Fundo
+      ctx.fillStyle = COLORS.BUTTON_BROWN;
+      ctx.fillRect(0, 4, 160, 42);
+
+      // Borda superior
+      ctx.fillStyle = COLORS.BUTTON_BROWN_BORDER;
+      ctx.fillRect(0, 0, 160, 4);
+
+      // Texto
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 18px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('PERSONALIZAR', 80, 26);
+
+      return { canvas, path: 'ui/buttons/customize.png', name: 'Botão Personalizar' };
+    }
+
+    // ===============================
+    // GERAR TODOS E EXIBIR
+    // ===============================
+    function generateAll() {
+      const generators = [
+        generateCapibara,
+        generateSnake,
+        generateFruit,
+        generateHeart,
+        generateHeartEmpty,
+        generateForestTiles,
+        generateJoystickBase,
+        generateJoystickThumb,
+        generateButtonA,
+        generateButtonB,
+        generatePlayButton,
+        generateCustomizeButton,
+      ];
+
+      const container = document.getElementById('sprites');
+
+      generators.forEach(gen => {
+        const result = gen();
+        sprites[result.path] = result;
+
+        const div = document.createElement('div');
+        div.className = 'sprite-item';
+
+        // Canvas original
+        div.appendChild(result.canvas);
+
+        // Preview ampliado
+        const previewDiv = document.createElement('div');
+        previewDiv.className = 'preview';
+        const previewCanvas = document.createElement('canvas');
+        previewCanvas.width = result.canvas.width;
+        previewCanvas.height = result.canvas.height;
+        const previewCtx = previewCanvas.getContext('2d');
+        previewCtx.drawImage(result.canvas, 0, 0);
+        previewDiv.appendChild(previewCanvas);
+
+        const info = document.createElement('p');
+        info.textContent = `${result.name} - ${result.canvas.width}x${result.canvas.height}px`;
+        div.appendChild(info);
+
+        const path = document.createElement('p');
+        path.textContent = `📁 assets/${result.path}`;
+        path.style.color = '#4CAF50';
+        div.appendChild(path);
+
+        const downloadLink = document.createElement('a');
+        downloadLink.href = result.canvas.toDataURL('image/png');
+        downloadLink.download = result.path.split('/').pop();
+        downloadLink.textContent = '⬇️ Baixar';
+        div.appendChild(downloadLink);
+
+        container.appendChild(div);
+      });
+    }
+
+    // ===============================
+    // DOWNLOAD ZIP
+    // ===============================
+    document.getElementById('download-all').addEventListener('click', async () => {
+      const zip = new JSZip();
+
+      for (const [path, sprite] of Object.entries(sprites)) {
+        const dataUrl = sprite.canvas.toDataURL('image/png');
+        const base64 = dataUrl.split(',')[1];
+        zip.file(`assets/${path}`, base64, { base64: true });
+      }
+
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'capibara-sprites.zip';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Inicializa
+    generateAll();
+  </script>
+</body>
+</html>

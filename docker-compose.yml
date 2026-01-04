@@ -1,0 +1,13 @@
+services:
+  game:
+    build: .
+    container_name: capibara-adventure
+    ports:
+      - "7777:7777"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    stdin_open: true
+    tty: true

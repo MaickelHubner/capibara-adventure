@@ -1,0 +1,27 @@
+{
+  "name": "capibara-adventure",
+  "version": "1.0.0",
+  "description": "Jogo de plataforma 2D estilo pixel art com uma capivara aventureira",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "generate-sprites": "node scripts/generate-sprites.js"
+  },
+  "keywords": [
+    "game",
+    "phaser",
+    "platformer",
+    "capybara"
+  ],
+  "author": "Maickel Hubner",
+  "license": "MIT",
+  "dependencies": {
+    "phaser": "^3.80.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.57.0",
+    "vite": "^5.4.2"
+  }
+}
